@@ -1,21 +1,22 @@
 import { Assets, Texture } from "pixi.js";
 import React from "react";
 
-const SpaceShipSprite = () => {
-    const spriteRef = React.useRef(null);
+const SpaceShipSprite = ({ ref, controlFn }) => {
     const [texture, setTexture] = React.useState(Texture.EMPTY);
 
     React.useEffect(() => {
         if (texture === Texture.EMPTY) {
-            Assets.load("/space-ship.png").then((result) => {
+            Assets.load("/space-shooter/space-ship.png").then((result) => {
                 setTexture(result);
             });
         }
     }, [texture]);
 
+    controlFn(ref);
+
     return (
         <pixiSprite
-            ref={spriteRef}
+            ref={ref}
             texture={texture}
             x={window.innerWidth / 2}
             y={window.innerHeight - 50}
