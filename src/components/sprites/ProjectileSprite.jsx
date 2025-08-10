@@ -2,7 +2,7 @@ import { useTick } from "@pixi/react";
 import { Assets } from "pixi.js";
 import React from "react";
 
-const LaserBeamSprite = ({ ref, spaceShipRef }) => {
+const ProjectileSprite = ({ ref, shooterRef, textureUrl }) => {
     const [texture, setTexture] = React.useState(null);
     const [position, setPosition] = React.useState({
         x: 0,
@@ -14,19 +14,19 @@ const LaserBeamSprite = ({ ref, spaceShipRef }) => {
     React.useEffect(() => {
         if (texture === null) {
             // Load the laser beam texture
-            Assets.load("/space-shooter/laser-beam.png").then((result) => {
+            Assets.load(textureUrl).then((result) => {
                 setTexture(result);
             });
         }
 
-        if (spaceShipRef.current) {
+        if (shooterRef.current) {
             // Update the position of the laser beam based on the spaceship's position
             setPosition({
-                x: spaceShipRef.current.x,
-                y: spaceShipRef.current.y - 50, // Adjust for the laser beam's offset
+                x: shooterRef.current.x,
+                y: shooterRef.current.y - 50, // Adjust for the laser beam's offset
             });
         }
-    }, [texture, spaceShipRef]);
+    }, [texture, shooterRef, textureUrl]);
 
     useTick((tickObj) => {
         setPosition((prevPosition) => ({
@@ -45,9 +45,9 @@ const LaserBeamSprite = ({ ref, spaceShipRef }) => {
             anchor={0.5}
             rotation={Math.PI / 2} // Pointing upwards
             scale={0.05}
-            visible={spaceShipRef.current}
+            visible={shooterRef.current}
         />
     );
 };
 
-export default LaserBeamSprite;
+export default ProjectileSprite;

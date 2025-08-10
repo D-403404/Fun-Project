@@ -1,16 +1,16 @@
 import { Assets, Texture } from "pixi.js";
 import React from "react";
 
-const SpaceShipSprite = ({ ref, controlFn }) => {
+const CharacterSprite = ({ ref, textureUrl, controlFn }) => {
     const [texture, setTexture] = React.useState(Texture.EMPTY);
 
     React.useEffect(() => {
         if (texture === Texture.EMPTY) {
-            Assets.load("/space-shooter/space-ship.png").then((result) => {
+            Assets.load(textureUrl).then((result) => {
                 setTexture(result);
             });
         }
-    }, [texture]);
+    }, [texture, textureUrl]);
 
     controlFn(ref);
 
@@ -23,10 +23,9 @@ const SpaceShipSprite = ({ ref, controlFn }) => {
             anchor={0.5}
             scale={0.1}
             rotation={0}
-            interactive={true}
-            buttonMode={true}
+            interactive={false}
         />
     );
 };
 
-export default SpaceShipSprite;
+export default CharacterSprite;

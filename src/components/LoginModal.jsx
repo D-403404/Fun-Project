@@ -5,7 +5,7 @@ import Button from "./Button";
 const LoginModal = ({ className }) => {
     return (
         <div
-            className={`flex flex-col items-center justify-center bg-black/50 gap-8 p-8 rounded-lg shadow-lg ${className}`}
+            className={`flex flex-col items-center justify-center bg-black/30 gap-8 p-8 rounded-lg shadow-lg ${className}`}
         >
             <h2 className="text-2xl font-bold select-none">
                 Enter your cridentials
