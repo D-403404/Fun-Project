@@ -18,8 +18,12 @@ This project was created for fun to explore game making using React and Javascri
 ## Getting started
 
 Download the code, then run:
-```npm install```
+```
+npm install
+```
 
-Wait for packages installment, then run:
-```npm run dev```
+Wait for package installment, then run:
+```
+npm run dev
+```
 and navigate to the provided URL.
