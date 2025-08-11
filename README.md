@@ -11,6 +11,15 @@ Currently, two official plugins are available:
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 
-# About Project
+# About project
 
 This project was created for fun to explore game making using React and Javascript, as well as third-party libraries. Some behaviors might be irritating, but that's the point of this – for fun.
+
+## Getting started
+
+Download the code, then run:
+`npm install`
+
+Wait for packages installment, then run:
+`npm run dev`
+and navigate to the provided URL.
