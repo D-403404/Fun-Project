@@ -17,6 +17,8 @@ This project was created for fun to explore game making using React and Javascri
 
 ## Getting started
 
+### Front-end
+
 Download the code, then run:
 ```
 npm install
@@ -27,3 +29,5 @@ Wait for package installment, then run:
 npm run dev
 ```
 and navigate to the provided URL.
+
+### Back-end
