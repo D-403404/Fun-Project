@@ -3,3 +3,7 @@
 :root {
     @apply bg-black;
 }
+
+@theme {
+    --color-mint-500: oklch(0.72 0.11 178);
+}

@@ -1,12 +1,15 @@
 import React from "react";
 import EnemySprite from "./sprites/EnemySprite";
+import { removeEnemy } from "@/utils/commonUtils";
 
 const RandomEnemySpawner = ({
+    enemies,
+    setEnemies,
     textureUrlList = [],
     textList = [],
+    isRotating = false,
     maxEnemyNumber = 0,
 }) => {
-    const [enemies, setEnemies] = React.useState([]);
     const textStyle = React.useMemo(
         () => ({
             fontWeight: "bold",
@@ -19,7 +22,7 @@ const RandomEnemySpawner = ({
             if (enemies.length >= maxEnemyNumber) {
                 return; // Stop spawning if maxEnemyNumber is reached
             }
-            const id = Math.random();
+            const id = "enemy-" + Math.random();
             const newEnemy = {
                 id: id,
                 textureUrl:
@@ -27,9 +30,10 @@ const RandomEnemySpawner = ({
                         Math.floor(Math.random() * textureUrlList.length)
                     ],
                 text: textList[Math.floor(Math.random() * textList.length)],
-                x: (Math.random() * (0.9 - 0.1) + 0.1) * window.innerWidth,
-                y: (Math.random() * (0.9 - 0.1) + 0.1) * window.innerHeight,
-                ref: null, // Reference to the enemy sprite
+                x: (Math.random() * (0.8 - 0.2) + 0.2) * window.innerWidth,
+                y: (Math.random() * (0.8 - 0.2) + 0.2) * window.innerHeight,
+                destroyed: false, // Flag to check if the enemy is destroyed
+                ref: React.createRef(), // Reference to the enemy sprite
             };
             setEnemies((prevEnemies) => [...prevEnemies, newEnemy]);
             // console.log(newEnemy);
@@ -37,19 +41,9 @@ const RandomEnemySpawner = ({
             // Give this enemy its own despawn time
             const despawnTime = Math.random() * (7000 - 3000) + 3000; // 3-7 seconds
             setTimeout(() => {
-                setEnemies((prev) => {
-                    const enemy = prev.find((e) => e.id === id);
-                    if (enemy?.ref?.current && !enemy.ref.current.destroyed) {
-                        enemy.ref.current.destroy({
-                            children: true,
-                            texture: true,
-                            baseTexture: true,
-                        });
-                    }
-                    return prev.filter((e) => e.id !== id);
-                });
+                removeEnemy(id, setEnemies);
             }, despawnTime);
-        }, 1000);
+        }, 500);
 
         return () => clearInterval(addEnemyInterval);
     }, [maxEnemyNumber, enemies.length]);
@@ -80,6 +74,7 @@ const RandomEnemySpawner = ({
                     textureUrl={enemy.textureUrl}
                     text={enemy.text}
                     textStyle={textStyle}
+                    isRotating={isRotating}
                     x={enemy.x}
                     y={enemy.y}
                     scale={0.1}

@@ -1,13 +1,12 @@
 import React from "react";
-import LoginModal from "../components/LoginModal";
+import LoginModal from "@/components/LoginModal";
 
-import GameCanvas from "../components/GameCanvas";
-import CharacterSprite from "../components/sprites/CharacterSprite";
-import ProjectileSprite from "../components/sprites/ProjectileSprite";
+import GameCanvas from "@/components/2d-engine/GameCanvas";
+import CharacterSprite from "@/components/2d-engine/sprites/CharacterSprite";
+import ProjectileSprite from "@/components/2d-engine/sprites/ProjectileSprite";
 
-import useControls from "../utils/useControls";
-import RandomEnemySpawner from "../components/RandomEnemySpawner";
-// import useCollision from "../utils/useCollision";
+import useControls from "@/utils/useControls";
+import RandomEnemySpawner from "@/components/2d-engine/RandomEnemySpawner";
 
 const constructCharacterArray = () => {
     const uppercaseLetters = Array.from({ length: 26 }, (_, i) =>
@@ -41,9 +40,19 @@ export default function LoginPage() {
     const parentRef = React.useRef(null);
     const spaceShipRef = React.useRef(null);
     const laserBeamRef = React.useRef(null);
+    const [enemies, setEnemies] = React.useState([]);
+
+    const usernameRef = React.useRef(null);
+    const passwordRef = React.useRef(null);
+    const [username, setUsername] = React.useState("");
+
+    const textUpdate = (char) => {
+        if (document.activeElement !== usernameRef.current) return;
+        setUsername((prev) => prev + char.toLowerCase());
+    };
 
     const laserSfx = React.useCallback(() => {
-        const audio = new Audio("/space-shooter/laser-sfx.mp3");
+        const audio = new Audio("/space-shooter/sounds/laser-sfx.mp3");
         audio.volume = 0.1;
         return audio;
     }, []);
@@ -71,7 +80,13 @@ export default function LoginPage() {
                 Arrow keys to move, BACKSPACE to delete and ENTER to go to the
                 next field
             </p>
-            <LoginModal className="z-10" />
+            <LoginModal
+                username={username}
+                setUsername={setUsername}
+                usernameRef={usernameRef}
+                passwordRef={passwordRef}
+                className="z-10"
+            />
             <GameCanvas
                 parentRef={parentRef}
                 background={"/space-shooter/space-bg_medium.mp4"}
@@ -85,11 +100,17 @@ export default function LoginPage() {
                     key={counter} // to re-render the sprite when counter changes
                     ref={laserBeamRef}
                     shooterRef={spaceShipRef}
+                    enemies={enemies}
+                    setEnemies={setEnemies}
+                    extraCollideFn={textUpdate}
                     textureUrl="/space-shooter/laser-beam.png"
                 />
                 <RandomEnemySpawner
+                    enemies={enemies}
+                    setEnemies={setEnemies}
                     textList={allChars}
                     textureUrlList={["/space-shooter/meteor.png"]}
+                    isRotating={true}
                     maxEnemyNumber={10}
                 />
             </GameCanvas>

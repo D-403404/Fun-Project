@@ -1,8 +1,16 @@
 import { useTick } from "@pixi/react";
 import { Assets } from "pixi.js";
 import React from "react";
+import { projectileEnemyCollision } from "@/utils/collisionUtils";
 
-const ProjectileSprite = ({ ref, shooterRef, textureUrl }) => {
+const ProjectileSprite = ({
+    ref,
+    shooterRef,
+    enemies,
+    setEnemies,
+    textureUrl,
+    extraCollideFn,
+}) => {
     const [texture, setTexture] = React.useState(null);
     const [position, setPosition] = React.useState({
         x: 0,
@@ -33,8 +41,24 @@ const ProjectileSprite = ({ ref, shooterRef, textureUrl }) => {
             x: prevPosition.x + vx * tickObj.deltaTime,
             y: prevPosition.y + vy * tickObj.deltaTime, // Move the laser beam upwards
         }));
-        // console.log(delta, "Laser Beam Tick");
+        // console.log(delta, "Laser Beam Tick");]
     });
+
+    React.useEffect(() => {
+        const interval = setInterval(() => {
+            // Check for collisions with enemies
+            for (let i = 0; i < enemies?.length; i++) {
+                const enemy = enemies[i];
+                // console.log(ref, "Projectile with enemy:", enemy.ref);
+                // console.log(enemies, "Enemies in ProjectileSprite");
+                projectileEnemyCollision(ref, enemy, setEnemies, () =>
+                    extraCollideFn(enemy.text)
+                );
+            }
+        }, 100);
+
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <pixiSprite
