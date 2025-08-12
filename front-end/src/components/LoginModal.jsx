@@ -29,12 +29,12 @@ const LoginModal = ({
                 console.log("Login data submitted");
                 console.log(userData);
             }}
-            className={`flex flex-col items-center justify-center bg-none border-white border-2 gap-8 p-8 rounded-lg shadow-lg ${className}`}
+            className={`flex flex-col items-center justify-center bg-none border-white border-2 gap-6 p-6 rounded-lg shadow-lg ${className}`}
         >
             <h2 className="text-2xl font-bold select-none">
                 Enter your cridentials
             </h2>
-            <div className="flex flex-col gap-4 select-none">
+            <div className="flex flex-col gap-6 select-none">
                 <Input
                     ref={usernameRef}
                     type="text"
@@ -68,7 +68,9 @@ const LoginModal = ({
                     }
                 />
             </div>
-            <Button type="submit">Login</Button>
+            <Button type="submit" className="select-none">
+                Login
+            </Button>
         </form>
     );
 };

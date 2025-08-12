@@ -6,10 +6,27 @@ import CharacterSprite from "@/components/2d-engine/sprites/CharacterSprite";
 import ProjectileSprite from "@/components/2d-engine/sprites/ProjectileSprite";
 import RandomEnemySpawner from "@/components/2d-engine/RandomEnemySpawner";
 
+import { HiSpeakerWave } from "react-icons/hi2";
+import { HiSpeakerXMark } from "react-icons/hi2";
+
 import useControls from "@/utils/useControls";
-import { constructCharacterArray, useCheat } from "@/utils/commonUtils";
+import {
+    constructCharacterArray,
+    useCheat,
+    useBgm,
+    useCheckUserInteraction,
+} from "@/utils/commonUtils";
+import Button from "../components/Button";
+import { useCollision } from "../utils/collisionUtils";
 
 export default function LoginPage() {
+    const [interacted, setInteracted] = React.useState(false);
+
+    useCheckUserInteraction(setInteracted);
+
+    const [sfxActive, setSfxActive] = React.useState(true);
+    const [bgmActive, setBgmActive] = React.useState(true);
+
     const parentRef = React.useRef(null);
     const spaceShipRef = React.useRef(null);
     const laserBeamRef = React.useRef(null);
@@ -39,52 +56,38 @@ export default function LoginPage() {
         setUsername((prev) => prev + char.toLowerCase());
     };
 
-    const spaceBgmRef = React.useRef(null);
+    const spaceBgmRef = React.useRef(
+        new Audio("/space-shooter/sounds/calm-space-music.mp3")
+    );
+    // spaceBgmRef.current = !spaceBgmRef.current
+    //     ? new Audio("/space-shooter/sounds/calm-space-music.mp3")
+    //     : spaceBgmRef.current;
+    spaceBgmRef.current.loop = true;
 
-    React.useEffect(() => {
-        spaceBgmRef.current = new Audio(
-            "/space-shooter/sounds/calm-space-music.mp3"
-        );
-        spaceBgmRef.current.loop = true;
+    useBgm(spaceBgmRef);
 
-        function playAudio() {
-            spaceBgmRef.current.play().catch(() => {
-                // Play failed, maybe user hasn't interacted yet
-            });
-            window.removeEventListener("click", playAudio);
-            window.removeEventListener("keydown", playAudio);
-        }
+    // useRef is better than useMemo due to the fact that Audio objects should be persistent across renders and mutable
+    // and useMemo is not designed for mutable objects like Audio, but rather for values that are computed once and reused.
+    const laserSfxRef = React.useRef(null);
+    laserSfxRef.current = new Audio("/space-shooter/sounds/laser-sfx.mp3");
+    laserSfxRef.current.volume = 0.5;
 
-        // Try playing once, then fallback to user interaction
-        spaceBgmRef.current.play().catch(() => {
-            window.addEventListener("click", playAudio);
-            window.addEventListener("keydown", playAudio);
-        });
-
-        return () => {
-            spaceBgmRef.current.pause();
-            spaceBgmRef.current.currentTime = 0;
-            window.removeEventListener("click", playAudio);
-            window.removeEventListener("keydown", playAudio);
-        };
-    }, []);
-
-    // useMemo will have long pause between sounds => useCallback instead
-    const laserSfx = React.useCallback(() => {
-        const audio = new Audio("/space-shooter/sounds/laser-sfx.mp3");
-        audio.volume = 0.5;
-        return audio;
-    }, []);
+    const explosionSfxRef = React.useRef(null);
+    explosionSfxRef.current = new Audio(
+        "/space-shooter/sounds/explosion-312361.mp3"
+    );
+    explosionSfxRef.current.volume = 1.0;
 
     const [counter, setCounter] = React.useState(0);
     React.useEffect(() => {
         const interval = setInterval(() => {
-            setCounter((prev) => prev + 1);
-            laserSfx().play();
+            if (interacted) {
+                setCounter((prev) => prev + 1);
+            }
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [laserSfx]);
+    }, [interacted]);
 
     const allChars = React.useMemo(() => {
         return constructCharacterArray();
@@ -92,9 +95,34 @@ export default function LoginPage() {
 
     useCheat(cheatCode, setCheatActive, spaceBgmRef);
 
+    React.useEffect(() => {
+        if (!laserSfxRef.current || !explosionSfxRef.current) return;
+        if (sfxActive) {
+            laserSfxRef.current.muted = false;
+            explosionSfxRef.current.muted = false;
+        } else {
+            laserSfxRef.current.muted = true;
+            explosionSfxRef.current.muted = true;
+        }
+    }, [sfxActive]);
+
+    React.useEffect(() => {
+        if (!spaceBgmRef.current) return;
+        if (bgmActive) spaceBgmRef.current.muted = false;
+        else spaceBgmRef.current.muted = true;
+    }, [bgmActive]);
+
+    useCollision(
+        enemies,
+        setEnemies,
+        laserBeamRef,
+        sfxActive ? explosionSfxRef : null,
+        textUpdate
+    );
+
     return (
         <div
-            className="h-screen text-white flex flex-col gap-4 items-center justify-center"
+            className="relative h-screen text-white flex flex-col gap-4 items-center justify-center"
             ref={parentRef}
         >
             <p className="font-semibold select-none z-10">
@@ -109,6 +137,30 @@ export default function LoginPage() {
                 cheatActive={cheatActive}
                 className="z-10"
             />
+            <div className="absolute top-2 left-2 text-white text-2xl grid grid-cols-2 grid-rows-2 gap-2 z-10">
+                <>
+                    <p>SFX</p>
+                    <div>
+                        <Button
+                            isIcon
+                            onClick={() => setSfxActive((prev) => !prev)}
+                        >
+                            {sfxActive ? <HiSpeakerWave /> : <HiSpeakerXMark />}
+                        </Button>
+                    </div>
+                </>
+                <>
+                    <p>BGM</p>
+                    <div>
+                        <Button
+                            isIcon
+                            onClick={() => setBgmActive((prev) => !prev)}
+                        >
+                            {bgmActive ? <HiSpeakerWave /> : <HiSpeakerXMark />}
+                        </Button>
+                    </div>
+                </>
+            </div>
             <GameCanvas
                 parentRef={parentRef}
                 background={"/space-shooter/space-bg_medium.mp4"}
@@ -118,15 +170,16 @@ export default function LoginPage() {
                     textureUrl="/space-shooter/space-ship.png"
                     controlFn={useControls}
                 />
-                <ProjectileSprite
-                    key={counter} // to re-render the sprite when counter changes
-                    ref={laserBeamRef}
-                    shooterRef={spaceShipRef}
-                    enemies={enemies}
-                    setEnemies={setEnemies}
-                    extraCollideFn={cheatActive ? () => {} : textUpdate}
-                    textureUrl="/space-shooter/laser-beam.png"
-                />
+                {interacted && (
+                    <ProjectileSprite
+                        key={counter} // to re-render the sprite when counter changes
+                        ref={laserBeamRef}
+                        shooterRef={spaceShipRef}
+                        sfxRef={laserSfxRef}
+                        textureUrl="/space-shooter/laser-beam.png"
+                        sfxActive={sfxActive}
+                    />
+                )}
                 <RandomEnemySpawner
                     enemies={enemies}
                     setEnemies={setEnemies}

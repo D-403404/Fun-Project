@@ -19,7 +19,11 @@ This project was created for fun to explore game making using React and Javascri
 
 ### Front-end
 
-Download the code, then run:
+Download the code, then navigate to `/front-end`:
+```
+cd front-end
+```
+and run:
 ```
 npm install
 ```

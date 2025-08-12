@@ -1,7 +1,5 @@
+import React from "react";
 import { removeEnemy } from "./commonUtils";
-
-const explosionSfx = new Audio("/space-shooter/sounds/explosion-312361.mp3");
-explosionSfx.volume = 1.0;
 
 function checkCollision(ref1, ref2) {
     if (!ref1 || !ref2) {
@@ -28,13 +26,43 @@ export const projectileEnemyCollision = (
     projectileRef,
     enemy,
     setEnemies,
+    explosionSfxRef,
     extraCollisionFn
 ) => {
     if (enemy.destroyed) return;
     if (!checkCollision(projectileRef, enemy.ref)) return;
     // console.log("Collision detected!");
 
-    explosionSfx.cloneNode().play();
+    explosionSfxRef?.current.play();
     removeEnemy(enemy.id, setEnemies);
     extraCollisionFn();
 };
+
+export function useCollision(
+    enemies,
+    setEnemies,
+    ref,
+    explosionSfxRef,
+    extraCollideFn
+) {
+    React.useEffect(() => {
+        const interval = setInterval(() => {
+            // Check for collisions with enemies
+            // console.log(enemies);
+            for (let i = 0; i < enemies?.length; i++) {
+                const enemy = enemies[i];
+                // console.log(ref, "Projectile with enemy:", enemy.ref);
+                // console.log(enemies, "Enemies in ProjectileSprite");
+                projectileEnemyCollision(
+                    ref,
+                    enemy,
+                    setEnemies,
+                    explosionSfxRef,
+                    () => extraCollideFn(enemy.text)
+                );
+            }
+        }, 100);
+
+        return () => clearInterval(interval);
+    }, [enemies]);
+}

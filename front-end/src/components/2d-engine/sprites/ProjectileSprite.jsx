@@ -1,15 +1,13 @@
 import { useTick } from "@pixi/react";
 import { Assets } from "pixi.js";
 import React from "react";
-import { projectileEnemyCollision } from "@/utils/collisionUtils";
 
 const ProjectileSprite = ({
     ref,
     shooterRef,
-    enemies,
-    setEnemies,
+    sfxRef,
     textureUrl,
-    extraCollideFn,
+    sfxActive,
 }) => {
     const [texture, setTexture] = React.useState(null);
     const [position, setPosition] = React.useState({
@@ -45,20 +43,36 @@ const ProjectileSprite = ({
     });
 
     React.useEffect(() => {
-        const interval = setInterval(() => {
-            // Check for collisions with enemies
-            for (let i = 0; i < enemies?.length; i++) {
-                const enemy = enemies[i];
-                // console.log(ref, "Projectile with enemy:", enemy.ref);
-                // console.log(enemies, "Enemies in ProjectileSprite");
-                projectileEnemyCollision(ref, enemy, setEnemies, () =>
-                    extraCollideFn(enemy.text)
-                );
-            }
-        }, 100);
-
-        return () => clearInterval(interval);
+        if (sfxActive) sfxRef.current.play();
     }, []);
+
+    // useCollision(
+    //     enemies,
+    //     setEnemies,
+    //     ref,
+    //     sfxRef,
+    //     extraCollideFn
+    // );
+
+    // React.useEffect(() => {
+    //     const interval = setInterval(() => {
+    //         // Check for collisions with enemies
+    //         for (let i = 0; i < enemies?.length; i++) {
+    //             const enemy = enemies[i];
+    //             // console.log(ref, "Projectile with enemy:", enemy.ref);
+    //             // console.log(enemies, "Enemies in ProjectileSprite");
+    //             projectileEnemyCollision(
+    //                 ref,
+    //                 enemy,
+    //                 setEnemies,
+    //                 sfxRef,
+    //                 () => extraCollideFn(enemy.text)
+    //             );
+    //         }
+    //     }, 100);
+
+    //     return () => clearInterval(interval);
+    // }, []);
 
     return (
         <pixiSprite
