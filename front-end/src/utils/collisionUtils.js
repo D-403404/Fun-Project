@@ -26,14 +26,14 @@ export const projectileEnemyCollision = (
     projectileRef,
     enemy,
     setEnemies,
-    explosionSfxRef,
+    explosionSfx,
     extraCollisionFn
 ) => {
     if (enemy.destroyed) return;
     if (!checkCollision(projectileRef, enemy.ref)) return;
-    // console.log("Collision detected!");
+    console.log("Collision detected!");
 
-    explosionSfxRef?.current.play();
+    explosionSfx.play();
     removeEnemy(enemy.id, setEnemies);
     extraCollisionFn();
 };
@@ -42,7 +42,7 @@ export function useCollision(
     enemies,
     setEnemies,
     ref,
-    explosionSfxRef,
+    explosionSfx,
     extraCollideFn
 ) {
     React.useEffect(() => {
@@ -57,11 +57,11 @@ export function useCollision(
                     ref,
                     enemy,
                     setEnemies,
-                    explosionSfxRef,
+                    explosionSfx,
                     () => extraCollideFn(enemy.text)
                 );
             }
-        }, 100);
+        }, 50);
 
         return () => clearInterval(interval);
     }, [enemies]);

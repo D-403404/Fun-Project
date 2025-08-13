@@ -2,13 +2,7 @@ import { useTick } from "@pixi/react";
 import { Assets } from "pixi.js";
 import React from "react";
 
-const ProjectileSprite = ({
-    ref,
-    shooterRef,
-    sfxRef,
-    textureUrl,
-    sfxActive,
-}) => {
+const ProjectileSprite = ({ ref, shooterRef, sfx, textureUrl, sfxActive }) => {
     const [texture, setTexture] = React.useState(null);
     const [position, setPosition] = React.useState({
         x: 0,
@@ -43,36 +37,9 @@ const ProjectileSprite = ({
     });
 
     React.useEffect(() => {
-        if (sfxActive) sfxRef.current.play();
+        if (sfxActive) sfx.play();
+        console.log("Fired");
     }, []);
-
-    // useCollision(
-    //     enemies,
-    //     setEnemies,
-    //     ref,
-    //     sfxRef,
-    //     extraCollideFn
-    // );
-
-    // React.useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         // Check for collisions with enemies
-    //         for (let i = 0; i < enemies?.length; i++) {
-    //             const enemy = enemies[i];
-    //             // console.log(ref, "Projectile with enemy:", enemy.ref);
-    //             // console.log(enemies, "Enemies in ProjectileSprite");
-    //             projectileEnemyCollision(
-    //                 ref,
-    //                 enemy,
-    //                 setEnemies,
-    //                 sfxRef,
-    //                 () => extraCollideFn(enemy.text)
-    //             );
-    //         }
-    //     }, 100);
-
-    //     return () => clearInterval(interval);
-    // }, []);
 
     return (
         <pixiSprite

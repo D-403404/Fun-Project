@@ -1,5 +1,7 @@
 import React from "react";
+import { Howl, Howler } from "howler";
 import LoginModal from "@/components/LoginModal";
+import Button from "@/components/Button";
 
 import GameCanvas from "@/components/2d-engine/GameCanvas";
 import CharacterSprite from "@/components/2d-engine/sprites/CharacterSprite";
@@ -13,11 +15,11 @@ import useControls from "@/utils/useControls";
 import {
     constructCharacterArray,
     useCheat,
-    useBgm,
     useCheckUserInteraction,
 } from "@/utils/commonUtils";
-import Button from "../components/Button";
-import { useCollision } from "../utils/collisionUtils";
+import { useCollision } from "@/utils/collisionUtils";
+
+import { LOGIN_CHEAT_CODE } from "@/data/cheat-codes";
 
 export default function LoginPage() {
     const [interacted, setInteracted] = React.useState(false);
@@ -36,47 +38,58 @@ export default function LoginPage() {
     const passwordRef = React.useRef(null);
     const [username, setUsername] = React.useState("");
 
-    const cheatCode = [
-        "ArrowUp",
-        "ArrowUp",
-        "ArrowDown",
-        "ArrowDown",
-        "ArrowLeft",
-        "ArrowRight",
-        "ArrowLeft",
-        "ArrowRight",
-        "B",
-        "A",
-        "Enter",
-    ];
+    const cheatCode = LOGIN_CHEAT_CODE;
     const [cheatActive, setCheatActive] = React.useState(false);
 
     const textUpdate = (char) => {
+        if (cheatActive) return;
         if (document.activeElement !== usernameRef.current) return;
         setUsername((prev) => prev + char.toLowerCase());
     };
 
-    const spaceBgmRef = React.useRef(
-        new Audio("/space-shooter/sounds/calm-space-music.mp3")
+    const spaceBgm = React.useMemo(() => {
+        const audio = new Howl({
+            src: ["/space-shooter/sounds/calm-space-music.mp3"],
+            loop: true,
+            volume: 1.0,
+            onload: () => spaceBgm.play(),
+        });
+        console.log("BGM created");
+        return audio;
+    }, []);
+
+    const laserSfx = React.useMemo(
+        () =>
+            new Howl({
+                src: ["/space-shooter/sounds/laser-sfx.mp3"],
+                volume: 0.5,
+            }),
+        []
     );
-    // spaceBgmRef.current = !spaceBgmRef.current
-    //     ? new Audio("/space-shooter/sounds/calm-space-music.mp3")
-    //     : spaceBgmRef.current;
-    spaceBgmRef.current.loop = true;
 
-    useBgm(spaceBgmRef);
-
-    // useRef is better than useMemo due to the fact that Audio objects should be persistent across renders and mutable
-    // and useMemo is not designed for mutable objects like Audio, but rather for values that are computed once and reused.
-    const laserSfxRef = React.useRef(null);
-    laserSfxRef.current = new Audio("/space-shooter/sounds/laser-sfx.mp3");
-    laserSfxRef.current.volume = 0.5;
-
-    const explosionSfxRef = React.useRef(null);
-    explosionSfxRef.current = new Audio(
-        "/space-shooter/sounds/explosion-312361.mp3"
+    const explosionSfx = React.useMemo(
+        () =>
+            new Howl({
+                src: ["/space-shooter/sounds/explosion-312361.mp3"],
+                volume: 1.0,
+            }),
+        []
     );
-    explosionSfxRef.current.volume = 1.0;
+
+    React.useEffect(() => {
+        if (sfxActive) {
+            laserSfx.mute(false);
+            explosionSfx.mute(false);
+        } else {
+            laserSfx.mute(true);
+            explosionSfx.mute(true);
+        }
+    }, [sfxActive, laserSfx, explosionSfx]);
+
+    React.useEffect(() => {
+        if (bgmActive) spaceBgm.mute(false);
+        else spaceBgm.mute(true);
+    }, [bgmActive, spaceBgm]);
 
     const [counter, setCounter] = React.useState(0);
     React.useEffect(() => {
@@ -93,32 +106,9 @@ export default function LoginPage() {
         return constructCharacterArray();
     }, []);
 
-    useCheat(cheatCode, setCheatActive, spaceBgmRef);
+    useCheat(cheatCode, setCheatActive, spaceBgm);
 
-    React.useEffect(() => {
-        if (!laserSfxRef.current || !explosionSfxRef.current) return;
-        if (sfxActive) {
-            laserSfxRef.current.muted = false;
-            explosionSfxRef.current.muted = false;
-        } else {
-            laserSfxRef.current.muted = true;
-            explosionSfxRef.current.muted = true;
-        }
-    }, [sfxActive]);
-
-    React.useEffect(() => {
-        if (!spaceBgmRef.current) return;
-        if (bgmActive) spaceBgmRef.current.muted = false;
-        else spaceBgmRef.current.muted = true;
-    }, [bgmActive]);
-
-    useCollision(
-        enemies,
-        setEnemies,
-        laserBeamRef,
-        sfxActive ? explosionSfxRef : null,
-        textUpdate
-    );
+    useCollision(enemies, setEnemies, laserBeamRef, explosionSfx, textUpdate);
 
     return (
         <div
@@ -175,7 +165,7 @@ export default function LoginPage() {
                         key={counter} // to re-render the sprite when counter changes
                         ref={laserBeamRef}
                         shooterRef={spaceShipRef}
-                        sfxRef={laserSfxRef}
+                        sfx={laserSfx}
                         textureUrl="/space-shooter/laser-beam.png"
                         sfxActive={sfxActive}
                     />
