@@ -1,4 +1,7 @@
 import React from "react";
+import Input from "./Input";
+import Button from "./Button";
+import SpinButton from "./SpinButton";
 
 const RegisterModal = ({ className }) => {
     const usernameRef = React.useRef(null);
@@ -10,7 +13,7 @@ const RegisterModal = ({ className }) => {
         username: "",
         password: "",
         name: "",
-        age: "",
+        age: 0,
     });
 
     return (
@@ -18,13 +21,13 @@ const RegisterModal = ({ className }) => {
             className={`flex flex-col items-center justify-center bg-none border-white border-2 gap-8 p-8 rounded-lg shadow-lg ${className}`}
             onSubmit={(e) => {
                 e.preventDefault();
-                console.log("Register data submitted");
+                console.log("Register data submitted", userData);
             }}
         >
             <h2 className="text-2xl font-bold select-none">
                 Register your new identity
             </h2>
-            <div className="flex flex-col gap-4 select-none">
+            <div className="w-full flex flex-col gap-4 select-none">
                 <Input
                     ref={usernameRef}
                     type="text"
@@ -65,19 +68,23 @@ const RegisterModal = ({ className }) => {
                         }))
                     }
                 />
-                <Input
-                    ref={ageRef}
-                    type="number"
-                    placeholder="Age"
-                    onChange={(e) =>
-                        setUserData((prev) => ({
-                            age: e.target.value,
-                            ...prev,
-                        }))
-                    }
-                />
+                <div className="w-full flex gap-2">
+                    <Input
+                        ref={ageRef}
+                        type="text"
+                        placeholder="Age"
+                        onChange={(e) => e.preventDefault()}
+                        disabled
+                        value={userData.age}
+                    />
+                    <SpinButton
+                        setValue={(value) =>
+                            setUserData((prev) => ({ ...prev, age: value }))
+                        }
+                    />
+                </div>
             </div>
-            <Button type="submit">Login</Button>
+            <Button type="submit">Register</Button>
         </form>
     );
 };
