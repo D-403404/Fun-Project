@@ -5,7 +5,7 @@ const leftNavItems = [
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
-    { name: "Credit", href: "/credit" },
+    { name: "Credits", href: "/credits" },
 ];
 
 const rightNavItems = [
@@ -26,7 +26,7 @@ const NavBar = ({ className }) => {
                     <li key={item.name}>
                         <a
                             href={item.href}
-                            className="text-white hover:text-gray-400 rounded-xl p-2"
+                            className="hover:text-gray-400 rounded-xl p-2"
                         >
                             {item.name}
                         </a>
@@ -38,7 +38,7 @@ const NavBar = ({ className }) => {
                     <li key={item.name}>
                         <a
                             href={item.href}
-                            className="text-white hover:text-gray-400 rounded-xl p-2"
+                            className="hover:text-gray-400 rounded-xl p-2"
                         >
                             {item.name}
                         </a>

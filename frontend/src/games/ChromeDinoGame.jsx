@@ -1,13 +1,14 @@
-import React from 'react'
+import React from "react";
 
-import GameCanvas from '@/components/2d-engine/GameCanvas'
+import GameCanvas from "../components/2d-engine/GameCanvas";
 
-const ChromeDinoGame = () => {
-  return (
-    <div>
-        {/* <GameCanvas /> */}
-    </div>
-  )
-}
+const ChromeDinoGame = ({ parentRef }) => {
+    return (
+        <GameCanvas
+            parentRef={parentRef}
+            backgroundColor="0xFFFFFF"
+        ></GameCanvas>
+    );
+};
 
-export default ChromeDinoGame
+export default ChromeDinoGame;

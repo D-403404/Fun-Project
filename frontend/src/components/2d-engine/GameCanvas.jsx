@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "@/utils/commonUtils";
 
 import { Application, extend } from "@pixi/react";
 import { Assets, Container, Graphics, Sprite, Texture } from "pixi.js";
@@ -12,7 +13,13 @@ extend({
     Texture,
 });
 
-const GameCanvas = ({ parentRef, background, children }) => {
+const GameCanvas = ({
+    parentRef,
+    background,
+    className,
+    children,
+    ...props
+}) => {
     const [backgroundTexture, setBackgroundTexture] = React.useState(null);
 
     React.useEffect(() => {
@@ -48,8 +55,12 @@ const GameCanvas = ({ parentRef, background, children }) => {
 
     return (
         <Application
-            className="w-full h-full absolute top-0 left-0 bg-none"
+            className={cn(
+                "w-full h-full absolute top-0 left-0 bg-none",
+                className
+            )}
             resizeTo={parentRef}
+            {...props}
         >
             {/* background image as first child */}
             <pixiSprite
