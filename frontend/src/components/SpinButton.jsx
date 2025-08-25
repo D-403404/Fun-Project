@@ -72,14 +72,12 @@ const SpinButton = ({ setValue, className }) => {
         let delta = angle - lastAngle.current;
         if (delta > 180) {
             delta -= 360;
-            round.current -= 1;
-            if (round.current < 0) round.current = 999;
+            round.current = (round.current - 1 + 1000) % 1000;
             if (setValue) setValue(round.current);
         }
         if (delta < -180) {
             delta += 360;
-            round.current += 1;
-            if (round.current > 999) round.current = 0;
+            round.current = (round.current + 1) % 1000;
             if (setValue) setValue(round.current);
         }
 

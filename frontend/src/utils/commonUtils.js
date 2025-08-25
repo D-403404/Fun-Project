@@ -8,6 +8,14 @@ export function cn(...inputs) {
     return twMerge(clsx(inputs));
 }
 
+// Fisher–Yates shuffle algorithm (Durstenfeld's modernized version)
+export function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
 export function constructCharacterArray() {
     const uppercaseLetters = Array.from({ length: 26 }, (_, i) =>
         String.fromCharCode(65 + i)

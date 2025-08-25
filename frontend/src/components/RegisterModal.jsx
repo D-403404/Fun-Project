@@ -32,10 +32,17 @@ const RegisterModal = ({ className }) => {
                     ref={usernameRef}
                     type="text"
                     placeholder="Username"
+                    value={userData.username}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            e.preventDefault();
+                            passwordRef.current.focus();
+                        }
+                    }}
                     onChange={(e) =>
                         setUserData((prev) => ({
-                            username: e.target.value,
                             ...prev,
+                            username: e.target.value,
                         }))
                     }
                 />
@@ -47,13 +54,13 @@ const RegisterModal = ({ className }) => {
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
                             e.preventDefault();
-                            usernameRef.current.focus();
+                            nameRef.current.focus();
                         }
                     }}
                     onChange={(e) =>
                         setUserData((prev) => ({
-                            password: e.target.value,
                             ...prev,
+                            password: e.target.value,
                         }))
                     }
                 />
@@ -61,10 +68,17 @@ const RegisterModal = ({ className }) => {
                     ref={nameRef}
                     type="text"
                     placeholder="Name"
+                    value={userData.name}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            e.preventDefault();
+                            usernameRef.current.focus();
+                        }
+                    }}
                     onChange={(e) =>
                         setUserData((prev) => ({
-                            name: e.target.value,
                             ...prev,
+                            name: e.target.value,
                         }))
                     }
                 />
@@ -73,7 +87,6 @@ const RegisterModal = ({ className }) => {
                         ref={ageRef}
                         type="text"
                         placeholder="Age"
-                        onChange={(e) => e.preventDefault()}
                         disabled
                         value={userData.age}
                     />

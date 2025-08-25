@@ -61,8 +61,8 @@ const LoginModal = ({
                     }}
                     onChange={(e) =>
                         setUserData((prev) => ({
-                            password: e.target.value,
                             ...prev,
+                            password: e.target.value,
                         }))
                     }
                 />

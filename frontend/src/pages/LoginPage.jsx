@@ -50,6 +50,7 @@ export default function LoginPage() {
     const spaceBgm = React.useMemo(() => {
         const audio = new Howl({
             src: ["/space-shooter/sounds/calm-space-music.mp3"],
+            html5: true,
             loop: true,
             volume: 1.0,
             onload: () => spaceBgm.play(),
@@ -129,17 +130,6 @@ export default function LoginPage() {
             />
             <div className="absolute top-2 left-2 text-white text-2xl grid grid-cols-2 grid-rows-2 gap-2 z-10">
                 <>
-                    <p>SFX</p>
-                    <div>
-                        <Button
-                            isIcon
-                            onClick={() => setSfxActive((prev) => !prev)}
-                        >
-                            {sfxActive ? <HiSpeakerWave /> : <HiSpeakerXMark />}
-                        </Button>
-                    </div>
-                </>
-                <>
                     <p>BGM</p>
                     <div>
                         <Button
@@ -147,6 +137,17 @@ export default function LoginPage() {
                             onClick={() => setBgmActive((prev) => !prev)}
                         >
                             {bgmActive ? <HiSpeakerWave /> : <HiSpeakerXMark />}
+                        </Button>
+                    </div>
+                </>
+                <>
+                    <p>SFX</p>
+                    <div>
+                        <Button
+                            isIcon
+                            onClick={() => setSfxActive((prev) => !prev)}
+                        >
+                            {sfxActive ? <HiSpeakerWave /> : <HiSpeakerXMark />}
                         </Button>
                     </div>
                 </>
