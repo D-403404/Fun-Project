@@ -64,8 +64,8 @@ export default function RegisterPage() {
             </div>
             <div className="absolute top-2 left-2 text-white text-2xl grid grid-cols-2 grid-rows-1 gap-2 z-10">
                 <>
-                    <p>BGM</p>
-                    <div>
+                    <p className="flex items-center">BGM</p>
+                    <div className="flex items-center">
                         <Button
                             isIcon
                             onClick={() => setBgmActive((prev) => !prev)}
