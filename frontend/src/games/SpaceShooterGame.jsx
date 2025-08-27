@@ -40,7 +40,7 @@ const SpaceShooterGame = ({
 
     const spaceBgm = React.useMemo(() => {
         const audio = new Howl({
-            src: ["/space-shooter/sounds/calm-space-music.mp3"],
+            src: ["/games/space-shooter/sounds/calm-space-music.mp3"],
             html5: true,
             loop: true,
             volume: 1.0,
@@ -53,7 +53,7 @@ const SpaceShooterGame = ({
     const laserSfx = React.useMemo(
         () =>
             new Howl({
-                src: ["/space-shooter/sounds/laser-sfx.mp3"],
+                src: ["/games/space-shooter/sounds/laser-sfx.mp3"],
                 volume: 0.5,
             }),
         []
@@ -62,7 +62,7 @@ const SpaceShooterGame = ({
     const explosionSfx = React.useMemo(
         () =>
             new Howl({
-                src: ["/space-shooter/sounds/explosion-312361.mp3"],
+                src: ["/games/space-shooter/sounds/explosion-312361.mp3"],
                 volume: 1.0,
             }),
         []
@@ -90,11 +90,11 @@ const SpaceShooterGame = ({
     return (
         <GameCanvas
             parentRef={parentRef}
-            background={"/space-shooter/space-bg_medium.mp4"}
+            background={"/games/space-shooter/space-bg_medium.mp4"}
         >
             <CharacterSprite
                 ref={spaceShipRef}
-                textureUrl="/space-shooter/space-ship.png"
+                textureUrl="/games/space-shooter/space-ship.png"
                 controlFn={useControls}
             />
             {interacted && (
@@ -103,7 +103,7 @@ const SpaceShooterGame = ({
                     ref={laserBeamRef}
                     shooterRef={spaceShipRef}
                     sfx={laserSfx}
-                    textureUrl="/space-shooter/laser-beam.png"
+                    textureUrl="/games/space-shooter/laser-beam.png"
                     sfxActive={sfxActive}
                 />
             )}
@@ -111,7 +111,7 @@ const SpaceShooterGame = ({
                 enemies={enemies}
                 setEnemies={setEnemies}
                 textList={enemyTextList}
-                textureUrlList={["/space-shooter/meteor.png"]}
+                textureUrlList={["/games/space-shooter/meteor.png"]}
                 isRotating={true}
                 maxEnemyNumber={10}
             />

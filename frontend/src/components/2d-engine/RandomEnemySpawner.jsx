@@ -12,6 +12,7 @@ const RandomEnemySpawner = ({
 }) => {
     const textStyle = React.useMemo(
         () => ({
+            fontFamily: "Pixelify Sans",
             fontWeight: "bold",
         }),
         []

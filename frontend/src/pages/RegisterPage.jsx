@@ -13,9 +13,9 @@ import bgmList from "@/data/bgm-synthwave";
 export default function RegisterPage() {
     // Test playlist playback
     // const bgmList = [
-    //     "/space-shooter/sounds/laser-sfx.mp3",
-    //     // "/space-shooter/sounds/laser-sfx.mp3",
-    //     "/space-shooter/sounds/explosion-312361.mp3",
+    //     "/games/space-shooter/sounds/laser-sfx.mp3",
+    //     // "/games/space-shooter/sounds/laser-sfx.mp3",
+    //     "/games/space-shooter/sounds/explosion-312361.mp3",
     // ];
 
     React.useMemo(() => shuffleArray(bgmList), []);
@@ -52,7 +52,7 @@ export default function RegisterPage() {
     }, [bgmActive]);
 
     return (
-        <div className="relative h-screen text-white flex flex-col gap-4 items-center justify-center">
+        <div className="relative h-screen text-white font-pixelifysans flex flex-col gap-4 items-center justify-center">
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
                 <video
                     src="/retro-dynamic-wallpaper.mp4"

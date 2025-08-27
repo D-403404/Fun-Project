@@ -35,7 +35,7 @@ export default function LoginPage() {
 
     return (
         <div
-            className="relative h-screen text-white flex flex-col gap-4 items-center justify-center"
+            className="relative h-screen text-white font-pixelifysans flex flex-col gap-4 items-center justify-center"
             ref={parentRef}
         >
             <p className="font-semibold select-none z-10">
