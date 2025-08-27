@@ -1,7 +1,7 @@
 import React from "react";
 import Phaser from "phaser";
 
-const PhaserTestGame = ({ ref }) => {
+const PhaserTestGame = () => {
     let config = {
         type: Phaser.AUTO,
         width: 800,
@@ -102,9 +102,15 @@ const PhaserTestGame = ({ ref }) => {
             fontSize: "32px",
             fill: "#000",
         });
+
+        bombs = this.physics.add.group();
+        this.physics.add.collider(bombs, platforms);
+        this.physics.add.collider(player, bombs, hitBomb, null, this);
     }
 
     function update() {
+        if (gameOver) return;
+
         if (cursors.left.isDown) {
             player.setVelocityX(-160);
 
@@ -122,10 +128,6 @@ const PhaserTestGame = ({ ref }) => {
         if (cursors.up.isDown && player.body.touching.down) {
             player.setVelocityY(-330);
         }
-
-        bombs = this.physics.add.group();
-        this.physics.add.collider(bombs, platforms);
-        this.physics.add.collider(player, bombs, hitBomb, null, this);
     }
 
     function collectStar(player, star) {
@@ -135,7 +137,7 @@ const PhaserTestGame = ({ ref }) => {
         scoreText.setText("Score: " + score);
 
         if (stars.countActive(true) === 0) {
-            stars.children.iterate(function (child) {
+            stars.children.iterate((child) => {
                 child.enableBody(true, child.x, 0, true, true);
             });
         }
