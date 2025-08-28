@@ -4,7 +4,7 @@ import BreakoutGame from "@/games/BreakoutGame";
 
 export default function Playground() {
     return (
-        <div>
+        <div className="font-pixelifysans">
             {/* <PhaserTestGame /> */}
             <BreakoutGame />
         </div>

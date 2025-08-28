@@ -58,6 +58,25 @@ export function removeEnemy(id, setEnemies) {
     // console.log(`Enemy with id ${id} removed`);
 }
 
+//=======================PHASER HELPERS=======================//
+
+export function addBodyBorder(scene, body, color = 0xff0000, thickness = 2) {
+    const graphics = scene.add.graphics();
+    graphics.lineStyle(thickness, color);
+
+    // Draw the initial border
+    graphics.strokeRect(body.x, body.y, body.width, body.height);
+
+    // Update the border every frame
+    scene.events.on("update", () => {
+        graphics.clear();
+        graphics.lineStyle(thickness, color);
+        graphics.strokeRect(body.x, body.y, body.width, body.height);
+    });
+
+    return graphics;
+}
+
 //=======================CUSTOM HOOKS=======================//
 
 export function useCheckUserInteraction(setInteracted) {
