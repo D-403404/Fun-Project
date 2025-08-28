@@ -6,9 +6,8 @@ import CharacterSprite from "@/components/2d-engine/sprites/CharacterSprite";
 import ProjectileSprite from "@/components/2d-engine/sprites/ProjectileSprite";
 import RandomEnemySpawner from "@/components/2d-engine/RandomEnemySpawner";
 
-import useControls from "@/utils/useControls";
-import { useCollision } from "@/utils/collisionUtils";
-import { useCheckUserInteraction, useCheat } from "@/utils/commonUtils";
+import { useCheckUserInteraction } from "@/utils/commonUtils";
+import { useControls, useCollision, useCheat } from "@/utils/gameUtils";
 
 const SpaceShooterGame = ({
     parentRef,

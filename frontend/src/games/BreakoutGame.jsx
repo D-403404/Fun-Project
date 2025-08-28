@@ -2,7 +2,8 @@
 
 import React from "react";
 import Phaser from "phaser";
-import { addBodyBorder } from "../utils/commonUtils";
+
+import { addBodyBorder } from "@/utils/gameUtils";
 
 const BreakoutGame = () => {
     let config = {

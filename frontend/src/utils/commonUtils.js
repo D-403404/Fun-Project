@@ -1,6 +1,4 @@
 import React from "react";
-import { Howl, Howler } from "howler";
-
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -44,39 +42,6 @@ export function constructCharacterArray() {
     return [...uppercaseLetters, ...numbers, ...specialChars];
 }
 
-export function removeEnemy(id, setEnemies) {
-    setEnemies((prev) => {
-        const enemy = prev.find((e) => e.id === id);
-        if (enemy?.ref?.current && !enemy?.ref?.current.destroyed) {
-            enemy.destroyed = true; // Mark as destroyed
-            enemy.ref.current.destroy({
-                children: true,
-            });
-        }
-        return prev.filter((e) => e.id !== id);
-    });
-    // console.log(`Enemy with id ${id} removed`);
-}
-
-//=======================PHASER HELPERS=======================//
-
-export function addBodyBorder(scene, body, color = 0xff0000, thickness = 2) {
-    const graphics = scene.add.graphics();
-    graphics.lineStyle(thickness, color);
-
-    // Draw the initial border
-    graphics.strokeRect(body.x, body.y, body.width, body.height);
-
-    // Update the border every frame
-    scene.events.on("update", () => {
-        graphics.clear();
-        graphics.lineStyle(thickness, color);
-        graphics.strokeRect(body.x, body.y, body.width, body.height);
-    });
-
-    return graphics;
-}
-
 //=======================CUSTOM HOOKS=======================//
 
 export function useCheckUserInteraction(setInteracted) {
@@ -98,45 +63,4 @@ export function useCheckUserInteraction(setInteracted) {
             window.removeEventListener("keydown", handleInteraction);
         };
     }, [setInteracted]);
-}
-
-export function useCheat(cheatCode = [], setCheatActive, bgm) {
-    const bgmVolume = bgm.volume();
-    const cheatSfx = React.useMemo(() => {
-        const audio = new Howl({
-            src: ["windows-sounds/Windows XP Startup.mp3"],
-            onplay: () => {
-                if (bgm && bgmVolume > 0.1) bgm.volume(0.1); // Lower the volume of the background music
-            },
-            onend: () => {
-                if (bgm) bgm.volume(bgmVolume); // Restore volume when cheatSfx ends
-            },
-        });
-        console.log("Cheat SFX created");
-        return audio;
-    }, [bgm]);
-    const cheatCodeLower = cheatCode.map((key) => key.toLowerCase());
-    const cheatIndex = React.useRef(0);
-    const checkCheatCode = React.useCallback(
-        (e) => {
-            if (e.key.toLowerCase() === cheatCodeLower[cheatIndex.current]) {
-                cheatIndex.current++;
-                if (cheatIndex.current === cheatCodeLower.length) {
-                    setCheatActive(true);
-                    cheatSfx.play();
-                    console.log("Cheat activated!");
-                    cheatIndex.current = 0; // Reset cheat index
-                }
-            } else {
-                cheatIndex.current = 0; // Reset if the sequence is broken
-            }
-        },
-        [cheatCodeLower, setCheatActive, cheatSfx]
-    );
-
-    React.useEffect(() => {
-        window.addEventListener("keydown", checkCheatCode);
-
-        return () => window.removeEventListener("keydown", checkCheatCode);
-    }, [checkCheatCode]);
 }

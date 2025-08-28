@@ -1,6 +1,6 @@
 import React from "react";
 import EnemySprite from "./sprites/EnemySprite";
-import { removeEnemy } from "@/utils/commonUtils";
+import { removeEnemy } from "@/utils/gameUtils";
 
 const RandomEnemySpawner = ({
     enemies,
