@@ -5,9 +5,9 @@ import ChromeDinoGame from "@/games/ChromeDinoGame";
 
 export default function LandingPage() {
     return (
-        <div className="relative h-screen text-black font-pixelifysans font-semibold text-xl">
+        <div className="relative h-screen text-medium-grey font-pixelifysans font-semibold text-xl">
             <NavBar className="relative z-10" />
-            <div id="game-container" className="/bg-white">
+            <div id="game-container">
                 <ChromeDinoGame />
             </div>
         </div>

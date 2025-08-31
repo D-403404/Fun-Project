@@ -6,11 +6,16 @@ import { addBodyBorder } from "@/utils/gameUtils";
 
 const ChromeDinoGame = () => {
     const navigate = useNavigate();
+    const WIDTH = window.innerWidth * 3;
 
-    let config = {
+    const config = {
         type: Phaser.AUTO,
         width: window.innerWidth,
         height: window.innerHeight,
+        scale: {
+            mode: Phaser.Scale.FIT,
+            autoCenter: Phaser.Scale.CENTER_BOTH,
+        },
         parent: "game-container",
         physics: {
             default: "arcade",
@@ -31,31 +36,71 @@ const ChromeDinoGame = () => {
         let game = new Phaser.Game(config);
     }, []);
 
-    let defaultSpeed = 300;
+    const defaultSpeed = 300;
     let speed = defaultSpeed;
 
     let ground, dino, cacti, car, spaceship;
-    let cactusSprites = [
+    const cactusSprites = [
         { key: "cacti-small", frames: 6 },
         { key: "cacti-large", frames: 2 },
         { key: "cacti-group", frames: 1 },
     ];
-    let titleText, spaceshipText, carText;
+    let titleText, spaceshipText, carText, instructionText;
+
+    const colorMediumGrey = window
+        .getComputedStyle(document.body)
+        .getPropertyValue("--color-medium-grey");
     const titleStyle = {
             fontFamily: "Pixelify Sans",
             fontSize: "80px",
             fontWeight: "bold",
-            color: "#000000",
+            color: "#FFFFFF",
+            stroke: colorMediumGrey,
+            strokeThickness: 8,
         },
-        defaultStyle = {
+        normalStyle = {
             fontFamily: "Pixelify Sans",
             fontSize: "32px",
-            color: "#000000",
+            color: colorMediumGrey,
         };
     let cursors;
-    let idleAnim;
+
+    let idleAnim, titleTween, instructionTween;
+    const titleTweenConfig = {
+            alpha: { from: 0, to: 1 },
+            y: { from: config.height / 2 - 120, to: config.height / 2 - 80 },
+            scale: { from: 0.8, to: 1.0 },
+            duration: 2000,
+            ease: "Sine.easeInOut",
+        },
+        instructionTweenConfig = {
+            alpha: { from: 1, to: 0 },
+            duration: 1000,
+            ease: "Sine.easeInOut",
+        },
+        textFloatingTweenConfig = {
+            // Set y-position when using this config
+            duration: 1000,
+            yoyo: true,
+            ease: "Cubic.easeOut",
+            repeat: -1,
+        };
+
     let keys;
     let delayed = null;
+    const triggerEvents = [
+        {
+            x: 500,
+            callback: (scene) => {
+                console.log("Title appears");
+                instructionTween.restart();
+                scene.time.delayedCall(1000, () => {
+                    titleTween.restart();
+                });
+            },
+            triggered: false,
+        },
+    ];
 
     function preload() {
         this.load.image("ground", "/games/chrome-dino/ground.png");
@@ -110,20 +155,20 @@ const ChromeDinoGame = () => {
         ground.setImmovable(true);
         ground.body.allowGravity = false;
         ground.setOffset(0, 25);
-        ground.setScale((config.width / ground.width) * 3, 1);
+        ground.setScale(WIDTH / ground.width, 1);
 
-        cacti = createCacti(this, 10);
+        cacti = createCacti(this, 15);
         this.physics.add.collider(ground, cacti);
 
         spaceship = this.physics.add
-            .sprite(config.width * 1.5 - 600, ground.y + 25, "spaceship")
-            .setOrigin(0, 1)
+            .sprite(WIDTH - (config.width * 2) / 3, ground.y + 25, "spaceship")
+            .setOrigin(0.5, 1)
             .setScale(0.3);
         this.physics.add.collider(ground, spaceship);
 
         car = this.physics.add
-            .sprite(config.width * 1.5 - 200, ground.y + 25, "car")
-            .setOrigin(0, 1)
+            .sprite(WIDTH - config.width / 3, ground.y + 25, "car")
+            .setOrigin(0.5, 1)
             .setScale(1.2);
         this.physics.add.collider(ground, car);
 
@@ -153,11 +198,22 @@ const ChromeDinoGame = () => {
             idleAnim.frames[0].duration = Phaser.Math.Between(2000, 5000);
         });
 
+        this.tweens.add({
+            ...textFloatingTweenConfig,
+            targets: spaceshipText,
+            y: { from: spaceshipText.y, to: spaceshipText.y - 20 },
+        });
+        this.tweens.add({
+            ...textFloatingTweenConfig,
+            targets: carText,
+            y: { from: carText.y, to: carText.y - 20 },
+        });
+
         addBorders(this);
 
         // World settings
-        this.cameras.main.setBounds(0, 0, ground.width, config.height);
-        this.physics.world.setBounds(0, 0, ground.width, config.height);
+        this.cameras.main.setBounds(0, 0, WIDTH, config.height);
+        this.physics.world.setBounds(0, 0, WIDTH, config.height);
         this.cameras.main.startFollow(dino);
         this.cameras.main.followOffset.set(-300, 0);
     }
@@ -200,13 +256,19 @@ const ChromeDinoGame = () => {
             }
         }
 
+        triggerEvents.forEach((e) => {
+            if (!e.triggered && dino.x >= e.x) {
+                e.triggered = true;
+                e.callback(this);
+            }
+        });
+
         // Instant redirect
         if (
             delayed &&
             (keys.enter.isDown || keys.up.isDown || cursors.up.isDown)
         ) {
             console.log("Redirecting...");
-            console.log(delayed);
             delayed.remove(false);
             delayed.callback.apply(this, delayed.args);
         }
@@ -230,20 +292,52 @@ const ChromeDinoGame = () => {
                 "Fun Project",
                 titleStyle
             )
+            .setAlpha(0)
             .setOrigin(0.5);
-        // .setVisible(false);
-        titleText.setShadow(2, 2, "#333333", 2, false, true);
         titleText.setScrollFactor(0);
 
+        instructionText = scene.add
+            .text(
+                config.width / 2,
+                config.height / 2 - 100,
+                "Press UP/W/SPACE to jump, DOWN/S to run, LEFT/A and RIGHT/D to move, UP/ENTER to select",
+                {
+                    ...normalStyle,
+                    fontSize: "24px",
+                    wordWrap: { width: config.width - 100 },
+                    align: "center",
+                }
+            )
+            .setAlpha(1)
+            .setOrigin(0.5);
+
         spaceshipText = scene.add
-            .text(spaceship.x, spaceship.y - 100, "To Login", defaultStyle)
-            .setVisible(false)
+            .text(
+                spaceship.x,
+                spaceship.y - spaceship.displayHeight - 50,
+                "To Login",
+                normalStyle
+            )
             .setOrigin(0.5);
 
         carText = scene.add
-            .text(car.x, car.y - 100, "To Register", defaultStyle)
-            .setVisible(false)
+            .text(
+                car.x,
+                car.y - car.displayHeight - 50,
+                "To Register",
+                normalStyle
+            )
             .setOrigin(0.5);
+
+        // Text tweens
+        titleTween = scene.tweens.create({
+            ...titleTweenConfig,
+            targets: titleText,
+        });
+        instructionTween = scene.tweens.create({
+            ...instructionTweenConfig,
+            targets: instructionText,
+        });
     }
 
     function createDino(scene) {
@@ -293,7 +387,7 @@ const ChromeDinoGame = () => {
             let sheet = cactusSprites[Phaser.Math.Between(0, 2)];
             cacti
                 .create(
-                    Phaser.Math.FloatBetween(150, ground.width - 300),
+                    Phaser.Math.FloatBetween(150, WIDTH - 300),
                     ground.y + 15,
                     sheet.key,
                     Phaser.Math.Between(0, sheet.frames - 1)
@@ -306,8 +400,6 @@ const ChromeDinoGame = () => {
     }
 
     function overlapSpaceship(dino, spaceship) {
-        spaceshipText.setVisible(true);
-
         if (keys.enter.isDown || keys.up.isDown || cursors.up.isDown) {
             spaceship.setTexture("spaceship-fly");
             dino.disableBody(true, true);
@@ -325,11 +417,9 @@ const ChromeDinoGame = () => {
     }
 
     function overlapCar(dino, car) {
-        carText.setVisible(true);
-
         if (keys.enter.isDown || keys.up.isDown || cursors.up.isDown) {
             dino.disableBody(false, true);
-            car.setAccelerationX(500);
+            car.setAccelerationX(200);
             car.setVelocityX(50);
 
             let temp = this.time.delayedCall(3000, () => {
