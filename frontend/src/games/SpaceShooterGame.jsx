@@ -86,6 +86,15 @@ const SpaceShooterGame = ({
 
     useCollision(enemies, setEnemies, laserBeamRef, explosionSfx, collideFn);
 
+    React.useEffect(() => {
+        return () => {
+            Howler.unload();
+            console.log(
+                "SpaceShooterGame unmounted, BGM stopped and Howler unloaded"
+            );
+        };
+    }, []);
+
     return (
         <GameCanvas
             parentRef={parentRef}

@@ -25,6 +25,9 @@ export default function RegisterPage() {
 
     React.useEffect(() => {
         console.log("Shuffled BGM list:", bgmList);
+        return () => {
+            Howler.unload();
+        };
     }, []);
 
     React.useEffect(() => {
