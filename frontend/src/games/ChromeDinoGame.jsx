@@ -6,7 +6,14 @@ import { addBodyBorder } from "@/utils/gameUtils";
 
 const ChromeDinoGame = () => {
     const navigate = useNavigate();
-    const WIDTH = window.innerWidth * 3;
+    const WIDTH = 3200;
+
+    const colorChromeDinoGrey = window
+            .getComputedStyle(document.body)
+            .getPropertyValue("--color-chrome-dino-grey"),
+        colorChromeDinoWhite = window
+            .getComputedStyle(document.body)
+            .getPropertyValue("--color-chrome-dino-white");
 
     const config = {
         type: Phaser.AUTO,
@@ -24,7 +31,7 @@ const ChromeDinoGame = () => {
                 debug: false,
             },
         },
-        backgroundColor: "0xFFFFFF",
+        backgroundColor: colorChromeDinoWhite,
         scene: {
             preload: preload,
             create: create,
@@ -39,7 +46,7 @@ const ChromeDinoGame = () => {
     const defaultSpeed = 300;
     let speed = defaultSpeed;
 
-    let ground, dino, cacti, car, spaceship;
+    let base, ground, sun, mountains, cacti, car, spaceship, dino;
     const cactusSprites = [
         { key: "cacti-small", frames: 6 },
         { key: "cacti-large", frames: 2 },
@@ -47,21 +54,20 @@ const ChromeDinoGame = () => {
     ];
     let titleText, spaceshipText, carText, instructionText;
 
-    const colorMediumGrey = window
-        .getComputedStyle(document.body)
-        .getPropertyValue("--color-medium-grey");
     const titleStyle = {
             fontFamily: "Pixelify Sans",
             fontSize: "80px",
             fontWeight: "bold",
-            color: "#FFFFFF",
-            stroke: colorMediumGrey,
+            color: colorChromeDinoWhite,
+            stroke: colorChromeDinoGrey,
             strokeThickness: 8,
         },
         normalStyle = {
             fontFamily: "Pixelify Sans",
             fontSize: "32px",
-            color: colorMediumGrey,
+            color: colorChromeDinoWhite,
+            stroke: colorChromeDinoGrey,
+            strokeThickness: 6,
         };
     let cursors;
 
@@ -87,7 +93,8 @@ const ChromeDinoGame = () => {
         };
 
     let keys;
-    let delayed = null;
+    let delayed = null,
+        interactedWith = null;
     const triggerEvents = [
         {
             x: 500,
@@ -104,6 +111,7 @@ const ChromeDinoGame = () => {
 
     function preload() {
         this.load.image("ground", "/games/chrome-dino/ground.png");
+        this.load.image("sun", "/games/chrome-dino/sun.png");
         this.load.spritesheet("dino", "/games/chrome-dino/dino.png", {
             frameWidth: 88,
             frameHeight: 94,
@@ -140,6 +148,7 @@ const ChromeDinoGame = () => {
                 frameHeight: 100,
             }
         );
+        this.load.image("mountains", "/games/chrome-dino/mountains.png");
         this.load.image("car", "/games/chrome-dino/car.png");
         this.load.image("spaceship", "/games/chrome-dino/spaceship.png");
         this.load.image(
@@ -149,30 +158,55 @@ const ChromeDinoGame = () => {
     }
 
     function create() {
+        base = this.add
+            .rectangle(
+                0,
+                config.height,
+                config.width,
+                config.height / 15,
+                parseInt(colorChromeDinoWhite.replace("#", "0x"), 16)
+            )
+            .setOrigin(0, 1)
+            .setDepth(1)
+            .setScrollFactor(0);
+
         ground = this.physics.add
-            .sprite(0, config.height - 50, "ground")
+            .sprite(0, config.height - base.height, "ground")
             .setOrigin(0, 0);
         ground.setImmovable(true);
         ground.body.allowGravity = false;
         ground.setOffset(0, 25);
         ground.setScale(WIDTH / ground.width, 1);
+        ground.setDepth(1);
 
-        cacti = createCacti(this, 15);
+        this.add
+            .image((config.width * 4) / 5, config.height / 3, "sun")
+            .setScale(2)
+            .setScrollFactor(0.01);
+        // createSun(this);
+
+        createMountains(this, 2);
+
+        createCacti(this, 15);
+        cacti.setDepth(2);
         this.physics.add.collider(ground, cacti);
 
         spaceship = this.physics.add
             .sprite(WIDTH - (config.width * 2) / 3, ground.y + 25, "spaceship")
             .setOrigin(0.5, 1)
+            .setDepth(3)
             .setScale(0.3);
         this.physics.add.collider(ground, spaceship);
 
         car = this.physics.add
             .sprite(WIDTH - config.width / 3, ground.y + 25, "car")
             .setOrigin(0.5, 1)
+            .setDepth(3)
             .setScale(1.2);
         this.physics.add.collider(ground, car);
 
-        dino = createDino(this);
+        createDino(this);
+        dino.setDepth(4);
         this.physics.add.collider(ground, dino);
 
         // Overlap
@@ -219,49 +253,54 @@ const ChromeDinoGame = () => {
     }
 
     function update() {
-        if (keys.left.isDown || cursors.left.isDown) {
-            dino.setVelocityX(-speed);
-            dino.setFlipX(true);
-        } else if (keys.right.isDown || cursors.right.isDown) {
-            dino.setVelocityX(speed);
-            dino.setFlipX(false);
-        } else {
-            dino.setVelocityX(0);
-        }
-
-        if (
-            (keys.up.isDown || cursors.up.isDown || cursors.space.isDown) &&
-            dino.body.onFloor()
-        ) {
-            dino.setVelocityY(-400);
-        }
-
-        if (keys.down.isDown || cursors.down.isDown) {
-            speed = defaultSpeed * 2;
-            dino.anims.play("crawl", true); // Must place this line above setSize to change sprite before setting the size
-            dino.setSize(dino.width, dino.height);
-        } else {
-            speed = defaultSpeed;
-            dino.setSize(dino.width, dino.height);
+        if (!interactedWith) {
+            if (keys.left.isDown || cursors.left.isDown) {
+                dino.setVelocityX(-speed);
+                dino.setFlipX(true);
+            } else if (keys.right.isDown || cursors.right.isDown) {
+                dino.setVelocityX(speed);
+                dino.setFlipX(false);
+            } else {
+                dino.setVelocityX(0);
+            }
 
             if (
-                keys.left.isDown ||
-                cursors.left.isDown ||
-                keys.right.isDown ||
-                cursors.right.isDown
+                (keys.up.isDown || cursors.up.isDown || cursors.space.isDown) &&
+                dino.body.onFloor()
             ) {
-                dino.anims.play("run", true);
-            } else {
-                dino.anims.play("idle", true);
+                dino.setVelocityY(-400);
             }
-        }
 
-        triggerEvents.forEach((e) => {
-            if (!e.triggered && dino.x >= e.x) {
-                e.triggered = true;
-                e.callback(this);
+            if (keys.down.isDown || cursors.down.isDown) {
+                speed = defaultSpeed * 2;
+                dino.anims.play("crawl", true); // Must place this line above setSize to change sprite before setting the size
+                dino.setSize(dino.width, dino.height);
+            } else {
+                speed = defaultSpeed;
+                dino.setSize(dino.width, dino.height);
+
+                if (
+                    keys.left.isDown ||
+                    cursors.left.isDown ||
+                    keys.right.isDown ||
+                    cursors.right.isDown
+                ) {
+                    dino.anims.play("run", true);
+                } else {
+                    dino.anims.play("idle", true);
+                }
             }
-        });
+
+            triggerEvents.forEach((e) => {
+                if (!e.triggered && dino.x >= e.x) {
+                    e.triggered = true;
+                    e.callback(this);
+                }
+            });
+        } else if (interactedWith === car) {
+            dino.setX(car.x - 20);
+            dino.setY(car.y - 10);
+        }
 
         // Instant redirect
         if (
@@ -340,6 +379,88 @@ const ChromeDinoGame = () => {
         });
     }
 
+    function createSun(scene) {
+        sun = scene.add.container();
+
+        // let outerGlow = scene.add
+        //     .circle(
+        //         (config.width * 4) / 5,
+        //         config.height / 3,
+        //         30,
+        //         parseInt(colorChromeDinoGrey.replace("#", "0x"), 16)
+        //     )
+        //     .setScrollFactor(0);
+        // outerGlow.postFX.addBlur(0, 7, 7, 5);
+        let innerGlow = scene.add
+            .circle(
+                (config.width * 4) / 5,
+                config.height / 3,
+                30,
+                parseInt(colorChromeDinoGrey.replace("#", "0x"), 16)
+            )
+            .setScrollFactor(0);
+        innerGlow.postFX.addBlur(0, 5, 5, 3);
+        let center = scene.add
+            .circle(
+                (config.width * 4) / 5,
+                config.height / 3,
+                20,
+                parseInt(colorChromeDinoGrey.replace("#", "0x"), 16)
+            )
+            .setScrollFactor(0);
+        center.postFX.addBlur(0, 1, 1, 0.5);
+
+        sun.add(innerGlow, center);
+    }
+
+    function createMountains(scene, number) {
+        mountains = scene.physics.add.staticGroup();
+        const textureWidth = scene.textures
+            .get("mountains")
+            .getSourceImage().width;
+
+        // Create layers from back to front
+        for (let i = 0; i < number; i++) {
+            let scaleFactor = 2 * Math.exp(1 * (i - number + 1));
+            let scrollFactor = 1 - (number - i) * 0.2;
+            let mountainLayer = scene.physics.add.staticGroup();
+            mountainLayer.createMultiple({
+                key: "mountains",
+                repeat: Math.ceil(WIDTH / (textureWidth * scaleFactor)),
+                setXY: {
+                    x: 0,
+                    // y: ground.y + 200 - (number - 1 - i) * 200,
+                    y: ground.y - 200 + 400 * Math.exp(1 * (i - number + 1)),
+                    stepX: textureWidth * scaleFactor,
+                },
+            });
+            mountainLayer.children.iterate((mountain) => {
+                mountain
+                    .setOrigin(0, 1)
+                    .setScale(scaleFactor)
+                    .setScrollFactor(scrollFactor)
+                    .refreshBody();
+            });
+            mountains.add(mountainLayer);
+        }
+    }
+
+    function createCacti(scene, number) {
+        cacti = scene.physics.add.staticGroup();
+        for (let i = 0; i < number; i++) {
+            let sheet = cactusSprites[Phaser.Math.Between(0, 2)];
+            cacti
+                .create(
+                    Phaser.Math.FloatBetween(150, WIDTH - 300),
+                    ground.y + 15,
+                    sheet.key,
+                    Phaser.Math.Between(0, sheet.frames - 1)
+                )
+                .setOrigin(0, 1)
+                .refreshBody();
+        }
+    }
+
     function createDino(scene) {
         dino = scene.physics.add.sprite(100, 450, "dino").setOrigin(0.5, 1);
         dino.setCollideWorldBounds(true);
@@ -377,30 +498,12 @@ const ChromeDinoGame = () => {
             frameRate: 10,
             repeat: -1,
         });
-
-        return dino;
-    }
-
-    function createCacti(scene, number) {
-        cacti = scene.physics.add.staticGroup();
-        for (let i = 0; i < number; i++) {
-            let sheet = cactusSprites[Phaser.Math.Between(0, 2)];
-            cacti
-                .create(
-                    Phaser.Math.FloatBetween(150, WIDTH - 300),
-                    ground.y + 15,
-                    sheet.key,
-                    Phaser.Math.Between(0, sheet.frames - 1)
-                )
-                .setOrigin(0, 1)
-                .refreshBody();
-        }
-
-        return cacti;
     }
 
     function overlapSpaceship(dino, spaceship) {
         if (keys.enter.isDown || keys.up.isDown || cursors.up.isDown) {
+            interactedWith = spaceship;
+
             spaceship.setTexture("spaceship-fly");
             dino.disableBody(true, true);
             spaceship.setAccelerationY(-1200);
@@ -418,7 +521,13 @@ const ChromeDinoGame = () => {
 
     function overlapCar(dino, car) {
         if (keys.enter.isDown || keys.up.isDown || cursors.up.isDown) {
-            dino.disableBody(false, true);
+            interactedWith = car;
+
+            dino.disableBody(true, false);
+            dino.setTexture("dino");
+            dino.setFlipX(false);
+            dino.setCrop(0, 0, dino.displayWidth, dino.displayHeight / 3 - 5);
+
             car.setAccelerationX(200);
             car.setVelocityX(50);
 

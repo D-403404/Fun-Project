@@ -12,5 +12,6 @@
 @theme {
     --font-pixelifysans: "Pixelify Sans", sans-serif;
     --color-mint-500: oklch(0.72 0.11 178);
-    --color-medium-grey: #535353;
+    --color-chrome-dino-grey: #535353;
+    --color-chrome-dino-white: #f7f7f7;
 }

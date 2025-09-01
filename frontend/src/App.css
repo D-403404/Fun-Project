@@ -1,9 +1,1 @@
 @import "tailwindcss";
-
-#game-container {
-    @apply absolute top-0 left-0 w-full h-full bg-white;
-}
-
-#game-container canvas {
-    @apply absolute top-0 left-0 w-full h-full;
-}
