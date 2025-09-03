@@ -1,10 +1,7 @@
 import React from "react";
 
 import LoginModal from "@/components/LoginModal";
-import Button from "@/components/Button";
-
-import { HiSpeakerWave } from "react-icons/hi2";
-import { HiSpeakerXMark } from "react-icons/hi2";
+import { AudioButton, AudioButtonGrid } from "@/components/Button";
 
 import { constructCharacterArray } from "@/utils/commonUtils";
 
@@ -50,30 +47,18 @@ export default function LoginPage() {
                 cheatActive={cheatActive}
                 className="z-10"
             />
-            <div className="absolute top-2 left-2 text-white text-2xl grid grid-cols-2 grid-rows-2 gap-2 z-10">
-                <>
-                    <p className="flex items-center">BGM</p>
-                    <div className="flex items-center">
-                        <Button
-                            isIcon
-                            onClick={() => setBgmActive((prev) => !prev)}
-                        >
-                            {bgmActive ? <HiSpeakerWave /> : <HiSpeakerXMark />}
-                        </Button>
-                    </div>
-                </>
-                <>
-                    <p className="flex items-center">SFX</p>
-                    <div className="flex items-center">
-                        <Button
-                            isIcon
-                            onClick={() => setSfxActive((prev) => !prev)}
-                        >
-                            {sfxActive ? <HiSpeakerWave /> : <HiSpeakerXMark />}
-                        </Button>
-                    </div>
-                </>
-            </div>
+            <AudioButtonGrid>
+                <AudioButton
+                    audioName="BGM"
+                    audioActive={bgmActive}
+                    setAudioActive={setBgmActive}
+                />
+                <AudioButton
+                    audioName="SFX"
+                    audioActive={sfxActive}
+                    setAudioActive={setSfxActive}
+                />
+            </AudioButtonGrid>
             <SpaceShooterGame
                 parentRef={parentRef}
                 sfxActive={sfxActive}

@@ -4,9 +4,9 @@ import Phaser from "phaser";
 
 import { addBodyBorder } from "@/utils/gameUtils";
 
-const ChromeDinoGame = () => {
+const ChromeDinoGame = ({ playBgm }) => {
     const navigate = useNavigate();
-    const WIDTH = 3200;
+    const WIDTH = 3600;
 
     const colorChromeDinoGrey = window
             .getComputedStyle(document.body)
@@ -45,6 +45,7 @@ const ChromeDinoGame = () => {
 
     const defaultSpeed = 300;
     let speed = defaultSpeed;
+    let autoWalk = false;
 
     let base, ground, sun, mountains, cacti, car, spaceship, dino;
     const cactusSprites = [
@@ -76,7 +77,7 @@ const ChromeDinoGame = () => {
             alpha: { from: 0, to: 1 },
             y: { from: config.height / 2 - 120, to: config.height / 2 - 80 },
             scale: { from: 0.8, to: 1.0 },
-            duration: 2000,
+            duration: 4000,
             ease: "Sine.easeInOut",
         },
         instructionTweenConfig = {
@@ -100,10 +101,21 @@ const ChromeDinoGame = () => {
             x: 500,
             callback: (scene) => {
                 console.log("Title appears");
+                autoWalk = true;
+                playBgm();
                 instructionTween.restart();
                 scene.time.delayedCall(1000, () => {
                     titleTween.restart();
                 });
+            },
+            triggered: false,
+        },
+        {
+            x: WIDTH - config.width / 2,
+            callback: () => {
+                console.log("Autowalk ends");
+                autoWalk = false;
+                keys.right.isDown = false;
             },
             triggered: false,
         },
@@ -155,9 +167,17 @@ const ChromeDinoGame = () => {
             "spaceship-fly",
             "/games/chrome-dino/spaceship-fly.png"
         );
+
+        // // Audio
+        // this.load.audio(
+        //     "bgm",
+        //     "/games/chrome-dino/audios/Theme From Jurassic Park (Jurassic Park OST).mp3"
+        // );
     }
 
     function create() {
+        // this.bgm = this.sound.add("bgm");
+        // this.bgm.play();
         base = this.add
             .rectangle(
                 0,
@@ -243,7 +263,7 @@ const ChromeDinoGame = () => {
             y: { from: carText.y, to: carText.y - 20 },
         });
 
-        addBorders(this);
+        // addBorders(this);
 
         // World settings
         this.cameras.main.setBounds(0, 0, WIDTH, config.height);
@@ -253,7 +273,13 @@ const ChromeDinoGame = () => {
     }
 
     function update() {
-        if (!interactedWith) {
+        if (autoWalk) {
+            speed = defaultSpeed;
+            dino.setVelocityX(speed);
+            dino.setFlipX(false);
+            dino.anims.play("run", true);
+            dino.setSize(dino.width, dino.height);
+        } else if (!interactedWith) {
             if (keys.left.isDown || cursors.left.isDown) {
                 dino.setVelocityX(-speed);
                 dino.setFlipX(true);
@@ -264,20 +290,16 @@ const ChromeDinoGame = () => {
                 dino.setVelocityX(0);
             }
 
-            if (
-                (keys.up.isDown || cursors.up.isDown || cursors.space.isDown) &&
-                dino.body.onFloor()
-            ) {
+            if (cursors.space.isDown && dino.body.onFloor()) {
                 dino.setVelocityY(-400);
             }
 
             if (keys.down.isDown || cursors.down.isDown) {
                 speed = defaultSpeed * 2;
-                dino.anims.play("crawl", true); // Must place this line above setSize to change sprite before setting the size
+                dino.anims.play("crawl", true); // Must place this line above setSize to change sprite before setting the size, avoid brief floating in the air
                 dino.setSize(dino.width, dino.height);
             } else {
                 speed = defaultSpeed;
-                dino.setSize(dino.width, dino.height);
 
                 if (
                     keys.left.isDown ||
@@ -289,18 +311,19 @@ const ChromeDinoGame = () => {
                 } else {
                     dino.anims.play("idle", true);
                 }
+                dino.setSize(dino.width, dino.height);
             }
-
-            triggerEvents.forEach((e) => {
-                if (!e.triggered && dino.x >= e.x) {
-                    e.triggered = true;
-                    e.callback(this);
-                }
-            });
         } else if (interactedWith === car) {
             dino.setX(car.x - 20);
             dino.setY(car.y - 10);
         }
+
+        triggerEvents.forEach((e) => {
+            if (!e.triggered && dino.x >= e.x) {
+                e.triggered = true;
+                e.callback(this);
+            }
+        });
 
         // Instant redirect
         if (
@@ -339,7 +362,7 @@ const ChromeDinoGame = () => {
             .text(
                 config.width / 2,
                 config.height / 2 - 100,
-                "Press UP/W/SPACE to jump, DOWN/S to run, LEFT/A and RIGHT/D to move, UP/ENTER to select",
+                "Press SPACE to jump, DOWN/S to run, LEFT/A and RIGHT/D to move, UP/ENTER to select",
                 {
                     ...normalStyle,
                     fontSize: "24px",
@@ -501,6 +524,7 @@ const ChromeDinoGame = () => {
     }
 
     function overlapSpaceship(dino, spaceship) {
+        if (autoWalk) return;
         if (keys.enter.isDown || keys.up.isDown || cursors.up.isDown) {
             interactedWith = spaceship;
 
@@ -520,6 +544,7 @@ const ChromeDinoGame = () => {
     }
 
     function overlapCar(dino, car) {
+        if (autoWalk) return;
         if (keys.enter.isDown || keys.up.isDown || cursors.up.isDown) {
             interactedWith = car;
 
