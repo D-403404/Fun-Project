@@ -6,6 +6,7 @@ import RegisterPage from "./pages/RegisterPage";
 import Playground from "./pages/Playground";
 
 import "./App.css";
+import T from "./pages/T";
 
 function App() {
     return (
@@ -15,6 +16,7 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/playground" element={<Playground />} />
+                <Route path="/t" element={<T />} />
             </Routes>
         </>
     );
