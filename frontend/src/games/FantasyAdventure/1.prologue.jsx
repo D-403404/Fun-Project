@@ -24,17 +24,6 @@ export default class Scene1 extends Phaser.Scene{
         this.load.tilemapTiledJSON('map01', TILEMAPS_PATH + 'map01.json');
 
         loadSwordfuckerAnims(this);
-
-        // this.inputSystem = {
-        //     keys: this.input.keyboard.addKeys({
-        //         up: "W",
-        //         down: "S",
-        //         left: "A",
-        //         right: "D",
-        //         space: "SPACE",
-        //     }),
-        //     cursors: this.input.keyboard.createCursorKeys()
-        // }
     }
 
     create(){
@@ -47,14 +36,18 @@ export default class Scene1 extends Phaser.Scene{
         const wallLayer = this.tilemap.createLayer('Wall', wallTileset);
         wallLayer.setCollisionByProperty({ collision: true });
 
+        // Create Input System
         this.inputSystem = new InputSystem(this);
         
         this.debugGraphics = this.add.graphics();
         this.debugGraphics.setDepth(100);    // Render on top of everything else
         // debugTilemapCollider(this.debugGraphics, wallLayer);
         
-        this.player = new Player(this, {x: 250, y: 250}, "Swordfucker-idle", {x: 0.5, y: 0.7}, new ColliderData(0.5, 0.2, 0, 20));
-        this.player.setScale(2,2);
+        this.player = new Player(
+            this, {x: 100, y: 350}, "Swordfucker-idle", 
+            {x:2, y:2}, {x: 0.5, y: 0.7}, 
+            new ColliderData(0.5, 0.2, 0, 20)
+        );
         // Create Animations
         createSwordfuckerAnims(this.player.anims);
         this.player.anims.play('idle');
@@ -71,6 +64,7 @@ export default class Scene1 extends Phaser.Scene{
     }
     
     update(){
+        this.debugGraphics.clear();
         this.player.update();
     }
 

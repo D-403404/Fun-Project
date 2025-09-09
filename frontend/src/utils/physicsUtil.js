@@ -21,6 +21,12 @@ export class ColliderData{
     including the whole rectangular sprite not just only the texture)
     even though not updating anything
     - use the top left as its position
+
+    NOTE THAT
+    - During the 1st frame, preUpdate(): body.width and body.height aren't scaled yet
+        until update() they change. So in the next frame's preUpdate() and afterwards, they are updated
+    
+    - ap.width and ap.height are unchanged, if wanting to use the scaled size, use displayWidth, displayHeight
 */
 export class BoxCollider{
     ap;
@@ -55,7 +61,7 @@ export class BoxCollider{
         // console.log(this.ap.x, this.ap.y, this.ap.width, this.ap.height);
         // console.log('offset2: ', this.ap.body.offset);
     }
-    
+
     setOffset(offset){
         /* This `offset` input is calculated from the center of the sprite */
         this.centerBody();
@@ -66,11 +72,44 @@ export class BoxCollider{
         this.ap.body.setOffset(desiredOffset.x, desiredOffset.y);
     }
 
+    setOffsetX(offsetX){
+        let currentOffsetY = this.ap.body.offset.y;     // This assumes offsetY is center adjusted
+        this.centerBody();
+        let centerOffset = this.ap.body.offset;
+        let desiredOffset = {
+            x: centerOffset.x + offsetX,
+            y: currentOffsetY
+        }
+        this.ap.body.setOffset(desiredOffset.x, desiredOffset.y);
+    }
+
+    setOffsetY(offsetY){
+        let currentOffsetX = this.ap.body.offset.x;     // This assumes offsetX is center adjusted
+        this.centerBody();
+        let centerOffset = this.ap.body.offset;
+        let desiredOffset = {
+            x: currentOffsetX,
+            y: centerOffset.y + offsetY
+        }
+        this.ap.body.setOffset(desiredOffset.x, desiredOffset.y);
+    }
+
     centerBody(){
-        // Get the offset when centering the box (box's center overlaps game object's center)
+        /*
+            Get the offset when centering the box (box's center overlaps game object's center)
+            This function should be used in the update() not during create() as the body's sizes are not scaled yet
+        */
+
+        // I'm NOT sure if it's right: REMEMBER TO SCALE DOWN THE BODY'S WIDTH AND HEIGHT!!
+        // because after applied scaled, the body's sizes are scaled but not the game object's one        
         this.ap.body.setOffset(
-            (this.ap.width - this.ap.body.width) / 2,
-            (this.ap.height - this.ap.body.height) / 2,
+            (this.ap.width - this.ap.body.width / this.ap.scaleX) / 2,
+            (this.ap.height - this.ap.body.height / this.ap.scaleY) / 2,
         );
+        // or
+        // this.ap.body.setOffset(
+        //     (this.ap.displayWidth - this.ap.body.width) / 2 / this.ap.scaleX,
+        //     (this.ap.displayHeight - this.ap.body.height) / 2 / this.ap.scaleY,
+        // );
     }
 }
