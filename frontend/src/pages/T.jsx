@@ -1,4 +1,4 @@
-import Scene1 from "../games/FantasyAdventure/1.prologue";
+import Scene1 from "@/games/FantasyAdventure/1.prologue";
 
 export default function T(){
     let config = {

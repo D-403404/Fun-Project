@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @font-face {
     font-family: "Pixelify Sans";
@@ -11,7 +14,14 @@
 
 @theme {
     --font-pixelifysans: "Pixelify Sans", sans-serif;
+
     --color-mint-500: oklch(0.72 0.11 178);
     --color-chrome-dino-grey: #535353;
     --color-chrome-dino-white: #f7f7f7;
+}
+
+@layer utilities {
+    .text-sub {
+        @apply text-sm;
+    }
 }

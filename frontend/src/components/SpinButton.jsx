@@ -1,7 +1,7 @@
 import React from "react";
 import { cn } from "@/utils/commonUtils";
 
-const SpinButton = ({ setValue, className }) => {
+const SpinButton = ({ setValue, className, ...props }) => {
     const buttonRef = React.useRef(null);
     const animationFrameRef = React.useRef(null);
     const round = React.useRef(0); // use ref to avoid re-renders on every change
@@ -122,6 +122,7 @@ const SpinButton = ({ setValue, className }) => {
             )}
             onMouseDown={handleMouseDown}
             onClick={(e) => e.preventDefault()}
+            {...props}
         />
     );
 };
