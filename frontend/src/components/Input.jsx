@@ -3,7 +3,7 @@ import { cn } from "@/utils/commonUtils";
 
 const Input = ({ id, label, errorMsg, className, ...props }) => {
     return (
-        <div className="relative py-3">
+        <div className="relative py-3 w-full">
             <input
                 id={id}
                 className={cn(

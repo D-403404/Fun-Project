@@ -109,7 +109,7 @@ const RegisterModal = ({ className }) => {
                         nameRef.current = e; // assign to our own ref as well
                     }}
                 />
-                <div className="w-full flex gap-2">
+                <div className="w-full flex gap-4">
                     <Input
                         id="age-input"
                         type="text"
