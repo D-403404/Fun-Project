@@ -4,9 +4,9 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Playground from "./pages/Playground";
+import T from "./pages/T";
 
 import "./App.css";
-import T from "./pages/T";
 
 function App() {
     return (
