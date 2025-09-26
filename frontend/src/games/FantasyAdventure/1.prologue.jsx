@@ -33,6 +33,11 @@ export default class Scene1 extends Phaser.Scene{
             TREES_PATH + 'Model_02/Size_03.png',
             {frameWidth: 48, frameHeight: 80}
         );
+        this.load.spritesheet(
+            'trees_spritesheet_02_05',
+            TREES_PATH + 'Model_02/Size_05.png',
+            {frameWidth: 96, frameHeight: 160}
+        );
 
         this.load.tilemapTiledJSON('map01', TILEMAPS_PATH + 'map01.json');
 
@@ -43,8 +48,8 @@ export default class Scene1 extends Phaser.Scene{
         this.debugGraphics = this.add.graphics();
         this.debugGraphics.setDepth(999999);    // Render on top of everything else
             
-        // Create tilemap
-        this.createTilemap();
+        // Create environment
+        this.createEnvironment();
 
         // debugTilemapCollider(this.debugGraphics, this.wallLayer);
         
@@ -70,8 +75,8 @@ export default class Scene1 extends Phaser.Scene{
         this.setupCamera();
     }
 
-    createTilemap(){
-        // Create a tilemap with different layers
+    createEnvironment(){
+        // ====== Create a tilemap with different layers ======== //
         const tilemap = this.make.tilemap({key:'map01'});
         this.tilemap = tilemap;
         const floorTileset = tilemap.addTilesetImage('FloorTileset', 'floor_tiles');
@@ -82,6 +87,7 @@ export default class Scene1 extends Phaser.Scene{
         this.wallLayer = wallLayer;
         wallLayer.setCollisionByProperty({ collision: true });
 
+        // ======= Create static trees ======== //
         const treeLayer = tilemap.getObjectLayer('Trees');
         
         this.treeColliders = this.physics.add.staticGroup();
@@ -135,19 +141,28 @@ export default class Scene1 extends Phaser.Scene{
             }
         });
 
-        let firstGid = tilemap.getTileset('Trees_03').firstgid;
-
+        let firstGid, key;
         for (let gid of treeObjTileGIDs){
+            // Check to use the correct spritesheet as we may create trees using different spritesheets
+            if (gid < tilemap.getTileset('Trees_02_05').firstgid){
+                firstGid = tilemap.getTileset('Trees_02_03').firstgid;
+                key = 'trees_spritesheet_02_03';
+            }
+            else{
+                firstGid = tilemap.getTileset('Trees_02_05').firstgid;
+                key = 'trees_spritesheet_02_05';
+            }
+
             let sprites = tilemap.createFromObjects('Trees', {
                 gid: gid,
-                key: 'trees_spritesheet_02_03',
+                key: key,
                 frame: gid - firstGid
-            })
+            });
             let yCoords = yCoordsMap.get(gid);
 
             sprites.forEach((value, index)=>{
                 let zDepth = yCoords[index];
-                value.setDepth(zDepth);
+                value.setDepth(zDepth);     // Set sprite sorting layer
 
                 // Annoyingly, an origin of a Tiled object in Tile is set to the bottom-left:))????
                 // But thankfully, tilemap.createFromObjects somehow manage to reset the origin to center in Phaser
